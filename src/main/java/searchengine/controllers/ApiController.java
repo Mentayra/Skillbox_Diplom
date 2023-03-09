@@ -19,51 +19,33 @@ import searchengine.service.IndexService;
 import searchengine.service.PageService;
 import searchengine.service.SiteService;
 import searchengine.service.StatisticsService;
-
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
-
 @RestController
 @RequestMapping("/api")
+
 public class ApiController {
     private Logger logger = LoggerFactory.getLogger(ApiController.class);
 
-    private StatisticsService statisticsService;
-    private SiteService siteService;
-
-    private SitesList sitesList;
-
-    private PageService pageService;
-
-    private IndexService indexService;
-
+    private final StatisticsService statisticsService;
+    private final SiteService siteService;
+    private final SitesList sitesList;
+    private final PageService pageService;
+    private final IndexService indexService;
     @Autowired
-    public void setStatisticsService(StatisticsService statisticsService) {
+    public ApiController(StatisticsService statisticsService,
+                         SiteService siteService,
+                         SitesList sitesList,
+                         PageService pageService,
+                         IndexService indexService) {
         this.statisticsService = statisticsService;
-    }
-
-    @Autowired
-    public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
-    }
-
-    @Autowired
-    public void setSitesList(SitesList sitesList) {
         this.sitesList = sitesList;
-    }
-
-    @Autowired
-    public void setPageService(PageService pageService) {
         this.pageService = pageService;
-    }
-
-    @Autowired
-    public void setIndexService(IndexService indexService) {
         this.indexService = indexService;
     }
-
     @GetMapping("/statistics")
     public ResponseEntity<StatisticsResponse> statistics() {
         return ResponseEntity.ok(statisticsService.getStatistics());
@@ -147,5 +129,4 @@ public class ApiController {
         List<PageData> res = this.siteService.searchSite(query, site, offset, limit);
         return new ResponseEntity<>(new SearchResult(true, res.size(), res), HttpStatus.OK);
     }
-
 }

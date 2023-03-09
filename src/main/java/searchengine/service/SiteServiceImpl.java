@@ -2,9 +2,7 @@ package searchengine.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.controllers.ApiController;
 import searchengine.dto.PageData;
 import searchengine.model.*;
 import searchengine.respository.SiteRepository;
@@ -14,32 +12,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-
 @Service
 public class SiteServiceImpl implements SiteService {
-    private Logger logger = LoggerFactory.getLogger(SiteServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(SiteServiceImpl.class);
 
-    private SiteRepository siteRepository;
+    private final SiteRepository siteRepository;
+    private final LemmaService lemmaService;
+    private final IndexService indexService;
 
-    private LemmaService lemmaService;
-
-    private IndexService indexService;
-
-    @Autowired
-    public void setSiteRepository(SiteRepository siteRepository) {
+    public SiteServiceImpl(SiteRepository siteRepository, LemmaService lemmaService, IndexService indexService) {
         this.siteRepository = siteRepository;
-    }
-
-    @Autowired
-    public void setLemmaService(LemmaService lemmaService) {
         this.lemmaService = lemmaService;
-    }
-
-    @Autowired
-    public void setIndexService(IndexService indexService) {
         this.indexService = indexService;
     }
-
     @Override
     public List<Site> deleteAllByUrl(String url) {
         return this.siteRepository.deleteAllByUrl(url);
@@ -118,12 +103,10 @@ public class SiteServiceImpl implements SiteService {
                         x.getRelev())).skip(offset == null ? 0 : offset)
                 .limit(limit == null ? pageRelevance.size() : limit).toList();
     }
-
     private static List<PageRelev> getPageRelevance(List<Index> indices) {
         List<PageRelev> pageRelevs = new ArrayList<>();
 
         for (Index index : indices) {
-            //нахождение суммы всех ранк для взятой страницы
             Page page = index.getPage();
             float sum = 0;
             for (Index value : indices) {
@@ -136,11 +119,9 @@ public class SiteServiceImpl implements SiteService {
 
         float max = (float) pageRelevs.stream().mapToDouble(PageRelev::getRelev).max().orElse(1);
 
-        //нахождение относительная релевантность
         for (PageRelev pageRelev : pageRelevs) {
             pageRelev.divide(max);
         }
-
         pageRelevs.sort(null);
         pageRelevs = pageRelevs.stream().distinct().toList();
         return pageRelevs;

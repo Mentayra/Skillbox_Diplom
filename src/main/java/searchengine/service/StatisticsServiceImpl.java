@@ -24,6 +24,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Autowired
     public void setSiteService(SiteService siteService) {
+
         this.siteService = siteService;
     }
 
